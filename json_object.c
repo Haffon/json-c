@@ -33,6 +33,10 @@
 #include "strdup_compat.h"
 #include "snprintf_compat.h"
 
+#if SIZEOF_LONG_LONG != SIZEOF_INT64_T
+#error "The long long type isn't 64-bits"
+#endif
+
 // Don't define this.  It's not thread-safe.
 /* #define REFCOUNT_DEBUG 1 */
 
@@ -684,6 +688,10 @@ int64_t json_object_get_int64(const struct json_object *jso)
 	case json_type_int:
 		return jso->o.c_int64;
 	case json_type_double:
+		if (jso->o.c_double >= INT64_MAX)
+			return INT64_MAX;
+		if (jso->o.c_double <= INT64_MIN)
+			return INT64_MIN;
 		return (int64_t)jso->o.c_double;
 	case json_type_boolean:
 		return jso->o.c_boolean;
